@@ -4,6 +4,7 @@ import os,pytz
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.conf import settings
+import uuid
 # Create your models here.
 
 #wherever you want to add user add the keyword 'settings.AUTH_USER_MODEL'
@@ -70,6 +71,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+#TODO if a user is a distreict or center admin they should access their own center or admin
+#TODO Create Authentication table fields user and the access tokens.
+
 class VaccineLot(models.Model):
     lotId = models.AutoField(primary_key=True)
     status=models.CharField(max_length = 10, choices = lot_status, default = 'produced')
@@ -89,7 +93,9 @@ class DistrictVaccineData(models.Model):
     lot = models.OneToOneField(VaccineLot, on_delete=models.CASCADE,related_name="districtVaccine")
     arrivalTimestamp = models.DateTimeField(auto_now_add=True)
     departureTimestamp = models.DateTimeField()
+
 #TODO check districtvaccinedata table if it's working
+
 class CenterAdmin(models.Model):
     # centerId = models.AutoField(primary_key=True)
     centerId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -103,6 +109,7 @@ class CenterVaccineData(models.Model):
     lot = models.OneToOneField(VaccineLot, on_delete=models.CASCADE,related_name="centerVaccine")
     arrivalTimestamp = models.DateTimeField(auto_now_add=True)
     departureTimestamp = models.DateTimeField()
+
 #TODO check CenterVaccineData table if it's working
 
 class CenterRegestration(models.Model):
