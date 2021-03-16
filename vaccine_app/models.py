@@ -71,8 +71,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-#TODO if a user is a distreict or center admin they should access their own center or admin
-#TODO Create Authentication table fields user and the access tokens.
+
+
 
 class VaccineLot(models.Model):
     lotId = models.AutoField(primary_key=True)
@@ -130,3 +130,16 @@ class ReceiverVaccination(models.Model):
     lot = models.OneToOneField(VaccineLot, on_delete=models.CASCADE,related_name="receiverVaccination")
     appointmentDate=models.DateField(auto_now_add=True)
     vaccineDose=models.BooleanField(default = False)
+
+
+class AccessControlList(models.Model):
+    person=models.ForeignKey(User,on_delete=models.CASCADE,related_name="access_control_list_person")
+    districtID=models.ForeignKey(DistrictAdmin,on_delete=models.CASCADE,related_name="access_control_list_district")
+    CenterID=models.ForeignKey(CenterAdmin,on_delete=models.CASCADE,related_name="access_control_list_center")
+
+    class Meta:
+        unique_together = (("person", "districtID", "CenterID"),)
+
+
+#TODO if a user is a distreict or center admin they should access their own center or admin
+#TODO Create Authentication table fields user and the access tokens or primary key of centers. Create logging of every user

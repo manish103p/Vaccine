@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import VaccineLot, DistrictAdmin, DistrictVaccineData, CenterAdmin, CenterVaccineData, CenterRegestration, Receiver, ReceiverVaccination
+from .models import VaccineLot, DistrictAdmin, DistrictVaccineData, CenterAdmin, CenterVaccineData, CenterRegestration, Receiver, ReceiverVaccination, AccessControlList
 # Register your models here.
 from .models import User
 admin.site.register(VaccineLot)
@@ -11,6 +11,7 @@ admin.site.register(CenterVaccineData)
 admin.site.register(CenterRegestration)
 admin.site.register(Receiver)
 admin.site.register(ReceiverVaccination)
+admin.site.register(AccessControlList)
 
 
 

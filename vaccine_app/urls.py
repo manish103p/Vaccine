@@ -3,9 +3,13 @@ from . import views,urls
 from django.conf import settings
 
 
+
 urlpatterns = [
     path('', views.index,name="index"),
     path('register', views.register_user,name="register"),
+    path('loggedin',views.loggedin,name='loggedin'),
+    path('login',views.login_gen,name='loginTemp'),
+    path('provide_access',views.provide_access,name='provide_access')
 ]
 
 if settings.DEBUG:
