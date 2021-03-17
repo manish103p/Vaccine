@@ -7,9 +7,11 @@ from django.conf import settings
 urlpatterns = [
     path('', views.index,name="index"),
     path('register', views.register_user,name="register"),
-    path('loggedin',views.loggedin,name='loggedin'),
-    path('login',views.login_gen,name='loginTemp'),
-    path('provide_access',views.provide_access,name='provide_access')
+    path('loggedin/<district_or_center>/<name>/',views.loggedin,name='loggedin'),
+    path('login',views.login_gen,name='login_gen'),
+    path('logout',views.logout,name='logout'),
+    path('provideaccess',views.provideaccess,name='provideaccess')
+
 ]
 
 if settings.DEBUG:

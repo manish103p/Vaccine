@@ -19,7 +19,6 @@ lot_status = (
 
 class CustomAccountManager(BaseUserManager):
 
-    
     def create_superuser(self, email, first_name, last_name, aadharNumber, password, **other_fields):
         other_fields.setdefault('is_superuser', True)
 
@@ -62,9 +61,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS=['first_name','last_name','aadharNumber']
 
     is_active=models.BooleanField(default=False)
+    
     is_superuser=models.BooleanField(default=False)
     is_districtadmin=models.BooleanField(default=False)
     is_centeradmin=models.BooleanField(default=False)
+
     is_staff=models.BooleanField(default=False)
 
     objects=CustomAccountManager()
@@ -85,8 +86,10 @@ class DistrictAdmin(models.Model):
     # districtId = models.AutoField(primary_key=True)
     districtId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # userName = models.CharField(max_length=255)
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     # password = models.CharField(max_length=20)
+    def __str__(self):
+        return self.districtId.urn[9:]+self.name
 
 class DistrictVaccineData(models.Model):
     district = models.ForeignKey(DistrictAdmin,on_delete=models.CASCADE,related_name="districtVaccine")
@@ -97,16 +100,18 @@ class DistrictVaccineData(models.Model):
 #TODO check districtvaccinedata table if it's working
 
 class CenterAdmin(models.Model):
-    # centerId = models.AutoField(primary_key=True)
-    centerId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    district = models.ForeignKey(DistrictAdmin,on_delete=models.CASCADE,related_name="centerAdmin")
+    centerPrimaryKey = models.AutoField(primary_key=True)
+    centerId = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    district = models.ForeignKey(DistrictAdmin, on_delete=models.CASCADE, related_name="centerAdmin")
     # userName = models.CharField(max_length=255)
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     # password = models.CharField(max_length=20)
+    def __str__(self):
+        return self.centerId.urn[9:]+self.name
 
 class CenterVaccineData(models.Model):
-    center = models.ForeignKey(CenterAdmin,on_delete=models.CASCADE,related_name="centerVaccine")
-    lot = models.OneToOneField(VaccineLot, on_delete=models.CASCADE,related_name="centerVaccine")
+    center = models.ForeignKey(CenterAdmin, on_delete=models.CASCADE, related_name="centerVaccine")
+    lot = models.OneToOneField(VaccineLot, on_delete=models.CASCADE, related_name="centerVaccine")
     arrivalTimestamp = models.DateTimeField(auto_now_add=True)
     departureTimestamp = models.DateTimeField()
 
@@ -132,14 +137,23 @@ class ReceiverVaccination(models.Model):
     vaccineDose=models.BooleanField(default = False)
 
 
-class AccessControlList(models.Model):
-    person=models.ForeignKey(User,on_delete=models.CASCADE,related_name="access_control_list_person")
-    districtID=models.ForeignKey(DistrictAdmin,on_delete=models.CASCADE,related_name="access_control_list_district")
-    CenterID=models.ForeignKey(CenterAdmin,on_delete=models.CASCADE,related_name="access_control_list_center")
+class AccessControlListDistrict(models.Model):
+    person=models.ForeignKey(User,on_delete=models.CASCADE,related_name="access_control_list_district_person")
+    districtID=models.ForeignKey(DistrictAdmin,on_delete=models.CASCADE,related_name="access_control_list_district", null=True)
+    class Meta:
+        unique_together = (("person", "districtID"),)
+
+
+class AccessControlListCenter(models.Model):
+    person=models.ForeignKey(User,on_delete=models.CASCADE,related_name="access_control_list_center_person")
+    centerID=models.ForeignKey(CenterAdmin,on_delete=models.CASCADE,related_name="access_control_list_center")
 
     class Meta:
-        unique_together = (("person", "districtID", "CenterID"),)
+        unique_together = (("person", "centerID"),)
 
 
 #TODO if a user is a distreict or center admin they should access their own center or admin
 #TODO Create Authentication table fields user and the access tokens or primary key of centers. Create logging of every user
+
+
+#TODO 
