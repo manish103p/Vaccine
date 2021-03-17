@@ -11,7 +11,6 @@ urlpatterns = [
     path('login',views.login_gen,name='login_gen'),
     path('logout',views.logout,name='logout'),
     path('provideaccess',views.provideaccess,name='provideaccess')
-
 ]
 
 if settings.DEBUG:
