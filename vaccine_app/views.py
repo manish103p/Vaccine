@@ -101,9 +101,6 @@ def logout(request):
 #         return redirect('provide_access')
 #     else:
 #         return redirect('register_admin')
-    
-
-
 # def login_gen(request):
 #     if request.user.is_authenticated:
 #         return redirect('loggedin')
@@ -152,7 +149,7 @@ def login_gen(request):
 
                 elif AccessControlListDistrict.objects.filter(person=user,districtID=center_obj.district).exists() and user.is_districtadmin:
                     models.auth.login(request, user)
-                    return redirect('/loggedin/district/'+center_obj.district.name)
+                    return redirect('/loggedin/center/'+center_obj.name)
                 else:
                     template_name = 'fail.html'
             if district and district!="_":
@@ -191,7 +188,7 @@ def loggedin(request,district_or_center,name):
 
             elif AccessControlListDistrict.objects.filter(person=user,districtID=center_obj.district).exists() and user.is_districtadmin:
                 
-                return HttpResponse("user is"+request.user.first_name+" district "+name)
+                return HttpResponse("user is"+request.user.first_name+" center "+center_obj.name)
             else:
                 return render(request,"fail.html")
         else:
@@ -240,3 +237,39 @@ def provideaccess(request):
     else:
         provide_access_form = ProvideAccessForm()
     return render(request, "provideaccess.html", {"form": provide_access_form})
+
+
+def verify(request,district_or_center,name):
+    # return HttpResponse("user is"+district_or_center+name)
+    if district_or_center=="district":
+        user=request.user
+        if DistrictAdmin.objects.filter(name=name).exists():
+            district_obj=DistrictAdmin.objects.get(name=name)
+            if AccessControlListDistrict.objects.filter(person=user,districtID=district_obj).exists() and user.is_districtadmin:
+                return True
+            else:
+                print("access is not there for user "+user.email)
+                return False
+        else:
+            print("name is invalid")
+            return False
+    elif district_or_center=="center":
+        user=request.user
+        if CenterAdmin.objects.filter(name=name).exists():
+            center_obj=CenterAdmin.objects.get(name=name)
+            if AccessControlListCenter.objects.filter(person=user,centerID=center_obj).exists() and user.is_centeradmin:
+                return True
+
+            elif AccessControlListDistrict.objects.filter(person=user,districtID=center_obj.district).exists() and user.is_districtadmin:
+                return True
+            else:
+                print("access not present "+user.email)
+                return False
+        else:
+            print("center not present")
+            return False
+    else:
+        print("Invalid district_or_center value")
+        return False
+
+

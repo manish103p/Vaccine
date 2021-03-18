@@ -107,7 +107,7 @@ class CenterAdmin(models.Model):
     name = models.CharField(max_length=255, unique=True)
     # password = models.CharField(max_length=20)
     def __str__(self):
-        return self.centerId.urn[9:]+self.name
+        return str(self.centerPrimaryKey)+self.name
 
 class CenterVaccineData(models.Model):
     center = models.ForeignKey(CenterAdmin, on_delete=models.CASCADE, related_name="centerVaccine")
@@ -115,7 +115,7 @@ class CenterVaccineData(models.Model):
     arrivalTimestamp = models.DateTimeField(auto_now_add=True)
     departureTimestamp = models.DateTimeField()
 
-#TODO check CenterVaccineData table if it's working
+#TODO check CenterVaccineData table if it's working, make lot one to one field to 
 
 class CenterRegestration(models.Model):
     center = models.OneToOneField(CenterAdmin,on_delete=models.CASCADE,related_name="centerRegestrations")
@@ -123,12 +123,12 @@ class CenterRegestration(models.Model):
 
 class Receiver(models.Model):
     person=models.ForeignKey(User,on_delete=models.CASCADE,related_name="person")
-    # aadharNumber = models.CharField(max_length=16, unique=True, primary_key=True)
+    aadharNumber = models.CharField(max_length=16, unique=True, primary_key=True)
     center = models.ForeignKey(CenterAdmin,on_delete=models.CASCADE,related_name="receiver")
-    # name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
     contactNumber= models.CharField(max_length=12, )
     address = models.CharField(max_length=1000, null = True)
-    # email = models.EmailField()
+    email = models.EmailField()
 
 class ReceiverVaccination(models.Model):
     receiver = models.OneToOneField(Receiver, on_delete=models.CASCADE,related_name="receiverVaccination")
