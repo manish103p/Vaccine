@@ -7,6 +7,9 @@ from django.conf import settings
 urlpatterns = [
     path('', views.index,name="index"),
     path('register', views.register_user,name="register"),
+    path('loggedin_district/<district_or_center>/<name>/',views.loggedin),
+    path('centeradd',views.centeradd,name='centeradd'),
+    path('centeradd_upload',views.centeradd_upload,name='centeradd_upload'),
     path('loggedin/<district_or_center>/<name>/',views.loggedin,name='loggedin'),
     path('login',views.login_gen,name='login_gen'),
     path('logout',views.logout,name='logout'),

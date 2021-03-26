@@ -121,10 +121,11 @@ def logout(request):
 
 
 def login_gen(request):
+    template_name = 'login_center.html'
     if request.user.is_authenticated and not request.user.is_superuser:
         if request.user.is_districtadmin:
             access_obj=AccessControlListDistrict.objects.get(person=request.user)
-            redirect('/loggedin/district/'+access_obj.districtID.name)
+            redirect('/loggedin_district/district/'+access_obj.districtID.name)
         elif request.user.is_centeradmin:
             access_obj=AccessControlListCenter.objects.get(person=request.user)
             redirect('/loggedin/center/'+access_obj.centerID.name)
@@ -137,7 +138,7 @@ def login_gen(request):
         center = request.POST.get('center')
         district = request.POST.get('district')
         user = authenticate(request, email = username, password = password)
-
+        
         #TODO add_drop_down and center selection
 
         if user is not None:
@@ -156,13 +157,13 @@ def login_gen(request):
                 district_obj=DistrictAdmin.objects.get(name=district)
                 if AccessControlListDistrict.objects.filter(person=user,districtID=district_obj).exists() and user.is_districtadmin:
                     models.auth.login(request, user)
-                    return redirect('/loggedin/district/'+district_obj.name)
+                    return redirect('/loggedin_district/district/'+district_obj.name)
                 else:
                     template_name = 'fail.html'
         else:
            template_name = 'fail.html'
     
-    template_name = 'login_center.html'
+    
     context={'err':err}
     return render(request, template_name,context)
 
@@ -174,7 +175,7 @@ def loggedin(request,district_or_center,name):
         if DistrictAdmin.objects.filter(name=name).exists():
             district_obj=DistrictAdmin.objects.get(name=name)
             if AccessControlListDistrict.objects.filter(person=user,districtID=district_obj).exists() and user.is_districtadmin:
-                return HttpResponse("user is"+request.user.first_name+" district "+name)
+                return redirect('centeradd')
             else:
                 return render(request,"fail.html")
         else:
@@ -272,4 +273,22 @@ def verify(request,district_or_center,name):
         print("Invalid district_or_center value")
         return False
 
+@login_required
+def centeradd(request):
+    return render(request,'loggedin_district.html')
 
+@login_required
+def centeradd_upload(request):
+    name = request.POST['name']
+    if(name!=""):
+        centeradd_obj=CenterAdmin.objects.filter(name=name)
+        dist_ID = AccessControlListDistrict.objects.get(person = request.user)
+        if centeradd_obj.exists():
+            return HttpResponse("Center already exists")
+        else:
+            new_center=CenterAdmin(name=name,district=dist_ID.districtID)
+            new_center.save()
+
+        name=""
+        
+    return redirect('centeradd')

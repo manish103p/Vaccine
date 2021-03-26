@@ -1,0 +1,30 @@
+{% block content %}
+
+    <div class="items">
+
+        <br><br>
+        <div class="items-1">
+            <form id="addelement" action='/centeradd_upload' method="POST">
+                {% csrf_token %}
+                <table id="my-table">
+                    <tr>
+                        <th>Name</th>
+                    </tr>
+                    <tr>
+                        <td><input type="text" id="name" name="name" /></td>
+                        <br>
+                    </tr>
+                    <tr class="last-row">
+                        <td></td>
+                    </tr>
+                </table>
+                <br>
+
+                <input type="submit" id="add" value="Add item" />
+            </form>
+    
+            <br><br>
+        </div>
+    </div>
+
+    {% endblock content %}
