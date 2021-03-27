@@ -11,6 +11,8 @@ from django.http import HttpResponse
 
 # Create your views here.
 def index(request):
+    objs = [VaccineLot() for i in range(40)]
+    VaccineLot.objects.bulk_create(objs,batch_size=40)
     return render(request,"index.html")
 
 
@@ -176,6 +178,7 @@ def loggedin(request,district_or_center,name):
             district_obj=DistrictAdmin.objects.get(name=name)
             if AccessControlListDistrict.objects.filter(person=user,districtID=district_obj).exists() and user.is_districtadmin:
                 return redirect('centeradd')
+                #TODO Make District Dashboard
             else:
                 return render(request,"fail.html")
         else:
@@ -239,7 +242,7 @@ def provideaccess(request):
         provide_access_form = ProvideAccessForm()
     return render(request, "provideaccess.html", {"form": provide_access_form})
 
-
+#verify(request,"district",name)
 def verify(request,district_or_center,name):
     # return HttpResponse("user is"+district_or_center+name)
     if district_or_center=="district":
@@ -252,7 +255,7 @@ def verify(request,district_or_center,name):
                 print("access is not there for user "+user.email)
                 return False
         else:
-            print("name is invalid")
+            print("District name is invalid")
             return False
     elif district_or_center=="center":
         user=request.user
@@ -260,14 +263,15 @@ def verify(request,district_or_center,name):
             center_obj=CenterAdmin.objects.get(name=name)
             if AccessControlListCenter.objects.filter(person=user,centerID=center_obj).exists() and user.is_centeradmin:
                 return True
-
             elif AccessControlListDistrict.objects.filter(person=user,districtID=center_obj.district).exists() and user.is_districtadmin:
                 return True
+                #district wala list if center(name, district=thane)
+                # if manish is the admin of thane then
             else:
                 print("access not present "+user.email)
                 return False
         else:
-            print("center not present")
+            print("center name does not exist")
             return False
     else:
         print("Invalid district_or_center value")
@@ -295,3 +299,6 @@ def centeradd_upload(request):
         name=""
         
     return redirect('centeradd')
+
+
+#TODO verify function, clean templates

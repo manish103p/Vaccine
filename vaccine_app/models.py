@@ -67,19 +67,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_centeradmin=models.BooleanField(default=False)
 
     is_staff=models.BooleanField(default=False)
-
     objects=CustomAccountManager()
     def __str__(self):
         return self.email
-
-
 
 
 class VaccineLot(models.Model):
     lotId = models.AutoField(primary_key=True)
     status=models.CharField(max_length = 10, choices = lot_status, default = 'produced')
     productionTimestamp = models.DateTimeField(auto_now_add=True)
-    departureTimestamp = models.DateTimeField()
+    departureTimestamp = models.DateTimeField(auto_now_add=True)
 
 
 class DistrictAdmin(models.Model):
