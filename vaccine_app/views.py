@@ -275,7 +275,10 @@ def verify(request,district_or_center,name):
 
 @login_required
 def centeradd(request):
-    return render(request,'loggedin_district.html')
+    dist = AccessControlListDistrict.objects.get(person = request.user)
+    dist_ID = dist.districtID
+    centers = CenterAdmin.objects.filter(district=dist_ID)
+    return render(request,'loggedin_district.html',{'centers':centers})
 
 @login_required
 def centeradd_upload(request):
