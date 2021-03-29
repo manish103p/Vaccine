@@ -95,6 +95,3 @@ class ProvideAccessForm(forms.ModelForm):
                 raise forms.ValidationError("Access already exist")
         return self.cleaned_data['district_name']
 
-    # if already a member don't allow
-    # Center ka bhi
-    

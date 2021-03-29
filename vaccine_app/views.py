@@ -197,10 +197,10 @@ def dashboard(request):
     # solve login
     # or remove
     center_access=AccessControlListCenter.objects.filter(person=user)
-    #If user has access to only one center
-    # if not user.is_districtadmin and center_access.count()==1:
-    #     center_access=center_access[0]
-    #     redirect('dashboard/center/'+center_access[0].center.name)
+    # If user has access to only one center
+    if not user.is_districtadmin and center_access.count()==1:
+        # center_access=center_access[0]
+        return redirect('/dashboard/center/'+center_access[0].center.name)
 
 
     if user.is_districtadmin:
@@ -266,7 +266,6 @@ def provideaccess(request):
             center_name=provide_access_form.cleaned_data["center_name"]
             district_name=provide_access_form.cleaned_data["district_name"]
             key=provide_access_form.cleaned_data["key"]
-            # 
             if center_name != "_":
                 center_obj=Center.objects.get(name=center_name)
                 if key==center_obj.centerId.urn[9:]:
@@ -302,7 +301,6 @@ def provideaccess(request):
     return render(request, "provideaccess.html", {"form": provide_access_form})
 
 def verify(request,district_or_center,name):
-    # return HttpResponse("user is"+district_or_center+name)
     if district_or_center=="district":
         user=request.user
         if District.objects.filter(name=name).exists():
@@ -323,8 +321,6 @@ def verify(request,district_or_center,name):
                 return True
             elif AccessControlListDistrict.objects.filter(person=user,district=center_obj.district).exists() and user.is_districtadmin:
                 return True
-                #district wala list if center(name, district=thane)
-                # if manish is the admin of thane then
             else:
                 print("access not present "+user.email)
                 return False
