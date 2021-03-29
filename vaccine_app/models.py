@@ -76,10 +76,10 @@ class VaccineLot(models.Model):
     lotId = models.AutoField(primary_key=True)
     status=models.CharField(max_length = 10, choices = lot_status, default = 'produced')
     productionTimestamp = models.DateTimeField(auto_now_add=True)
-    departureTimestamp = models.DateTimeField(auto_now_add=True)
+    departureTimestamp = models.DateTimeField()
 
 
-class DistrictAdmin(models.Model):
+class District(models.Model):
     districtPrimaryKey = models.AutoField(primary_key=True)
     districtId = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     # userName = models.CharField(max_length=255)
@@ -89,17 +89,17 @@ class DistrictAdmin(models.Model):
         return self.districtId.urn[9:]+self.name
 
 class DistrictVaccineData(models.Model):
-    district = models.ForeignKey(DistrictAdmin,on_delete=models.CASCADE,related_name="districtVaccine")
+    district = models.ForeignKey(District,on_delete=models.CASCADE,related_name="districtVaccine")
     lot = models.OneToOneField(VaccineLot, on_delete=models.CASCADE,related_name="districtVaccine")
     arrivalTimestamp = models.DateTimeField(auto_now_add=True)
-    departureTimestamp = models.DateTimeField()
+    departureTimestamp = models.DateTimeField(auto_now_add=True,null=True)
 
 #TODO check districtvaccinedata table if it's working
 
-class CenterAdmin(models.Model):
+class Center(models.Model):
     centerPrimaryKey = models.AutoField(primary_key=True)
     centerId = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    district = models.ForeignKey(DistrictAdmin, on_delete=models.CASCADE, related_name="centerAdmin")
+    district = models.ForeignKey(District, on_delete=models.CASCADE, related_name="Center")
     # userName = models.CharField(max_length=255)
     name = models.CharField(max_length=255, unique=True)
     # password = models.CharField(max_length=20)
@@ -107,7 +107,7 @@ class CenterAdmin(models.Model):
         return str(self.centerPrimaryKey)+self.name
 
 class CenterVaccineData(models.Model):
-    center = models.ForeignKey(CenterAdmin, on_delete=models.CASCADE, related_name="centerVaccine")
+    center = models.ForeignKey(Center, on_delete=models.CASCADE, related_name="centerVaccine")
     lot = models.OneToOneField(VaccineLot, on_delete=models.CASCADE, related_name="centerVaccine")
     arrivalTimestamp = models.DateTimeField(auto_now_add=True)
     departureTimestamp = models.DateTimeField()
@@ -115,13 +115,13 @@ class CenterVaccineData(models.Model):
 #TODO check CenterVaccineData table if it's working, make lot one to one field to 
 
 class CenterRegestration(models.Model):
-    center = models.OneToOneField(CenterAdmin,on_delete=models.CASCADE,related_name="centerRegestrations")
+    center = models.OneToOneField(Center,on_delete=models.CASCADE,related_name="centerRegestrations")
     count = models.IntegerField()
 
 class Receiver(models.Model):
     person=models.ForeignKey(User,on_delete=models.CASCADE,related_name="person")
     aadharNumber = models.CharField(max_length=16, unique=True, primary_key=True)
-    center = models.ForeignKey(CenterAdmin,on_delete=models.CASCADE,related_name="receiver")
+    center = models.ForeignKey(Center,on_delete=models.CASCADE,related_name="receiver")
     name = models.CharField(max_length=255)
     contactNumber= models.CharField(max_length=12, )
     address = models.CharField(max_length=1000, null = True)
@@ -136,17 +136,16 @@ class ReceiverVaccination(models.Model):
 
 class AccessControlListDistrict(models.Model):
     person=models.ForeignKey(User,on_delete=models.CASCADE,related_name="access_control_list_district_person")
-    districtID=models.ForeignKey(DistrictAdmin,on_delete=models.CASCADE,related_name="access_control_list_district", null=True)
+    district=models.ForeignKey(District,on_delete=models.CASCADE,related_name="access_control_list_district")
     class Meta:
-        unique_together = (("person", "districtID"),)
+        unique_together = (("person", "district"),)
 
 
 class AccessControlListCenter(models.Model):
     person=models.ForeignKey(User,on_delete=models.CASCADE,related_name="access_control_list_center_person")
-    centerID=models.ForeignKey(CenterAdmin,on_delete=models.CASCADE,related_name="access_control_list_center")
-
+    center=models.ForeignKey(Center,on_delete=models.CASCADE,related_name="access_control_list_center")
     class Meta:
-        unique_together = (("person", "centerID"),)
+        unique_together = (("person", "center"),)
 
 
 #TODO if a user is a distreict or center admin they should access their own center or admin

@@ -1,3 +1,7 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
 {% block title %} Give Access {% endblock %}
 {% block sub_content %}
 <form class="account-form" action="/provideaccess" method="POST">
@@ -27,4 +31,6 @@
 
 </form>
 
-{% endblock %}
+{% endblock sub_content %}
+
+{% endblock content %}

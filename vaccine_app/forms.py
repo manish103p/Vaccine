@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import (AuthenticationForm, PasswordResetForm, SetPasswordForm)
 
-from .models import User, CenterAdmin, DistrictAdmin, DistrictAdmin
+from .models import User, Center, District, AccessControlListDistrict, AccessControlListCenter
 
 
 class RegistrationForm(forms.ModelForm):
@@ -22,7 +22,16 @@ class RegistrationForm(forms.ModelForm):
         fields = ('email','aadharNumber')
     
     def clean_center_name(self):
+        center_name=self.cleaned_data['center_name']
+        if not Center.objects.filter(name=center_name).exists() and center_name!="_":
+            raise forms.ValidationError("Center Name does not exist")
         return self.cleaned_data['center_name'] or None
+
+    def clean_district_name(self):
+        district_name=self.cleaned_data['district_name']
+        if not District.objects.filter(name=district_name).exists() and district_name!="_":
+            raise forms.ValidationError("District Name does not exist")
+        return self.cleaned_data['district_name'] or None
 
     def clean_aadharNumber(self):
         aadharNumber = self.cleaned_data['aadharNumber'].lower()
@@ -49,8 +58,13 @@ class ProvideAccessForm(forms.ModelForm):
     district_name = forms.CharField(label='Enter district_name', min_length=0, max_length=30, empty_value="")
     key = forms.CharField(label='Enter key', min_length=16, max_length=50, help_text='Required')
 
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
     class Meta:
-        model = DistrictAdmin
+        model = District
         fields = ()
     
     def clean_center_name(self):
@@ -58,17 +72,29 @@ class ProvideAccessForm(forms.ModelForm):
         if center_name=="_":
             return "_"
         else:
-            r = CenterAdmin.objects.filter(name=center_name)
-            if r.count()==0:
+            center_obj = Center.objects.filter(name=center_name)
+            if center_obj.count()==0:
                 raise forms.ValidationError("No Center exists")
+            center_access = AccessControlListCenter.objects.filter(person=self.user,center=center_obj[0])
+            if not center_access.exists():
+                raise forms.ValidationError("Access already exists")
         return self.cleaned_data['center_name']
+
+
+        
     def clean_district_name(self):
         district_name = self.cleaned_data['district_name'].lower()
         if district_name=="_":
             return "_"
         else:
-            r = DistrictAdmin.objects.filter(name=district_name)
-            if r.count()==0:
+            district_obj = District.objects.filter(name=district_name)
+            if not district_obj.exists():
                 raise forms.ValidationError("No District exists")
+            district_access = AccessControlListDistrict.objects.filter(person=self.user,district=district_obj[0])
+            if not district_access.count()==0:
+                raise forms.ValidationError("Access already exist")
         return self.cleaned_data['district_name']
+
+    # if already a member don't allow
+    # Center ka bhi
     

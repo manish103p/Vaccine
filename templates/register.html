@@ -1,4 +1,11 @@
+{% extends 'base.html' %}
+
+
 {% block title %}Register Account{% endblock %}
+
+{% block content %}
+
+
 {% block sub_content %}
 <form class="account-form" action="/register" method="POST">
   {% csrf_token %}
@@ -43,4 +50,6 @@
 
 </form>
 
-{% endblock %}
+{% endblock sub_content %}
+
+{% endblock content %}
