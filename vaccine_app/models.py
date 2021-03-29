@@ -74,7 +74,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class VaccineLot(models.Model):
     lotId = models.AutoField(primary_key=True)
-    status=models.CharField(max_length = 10, choices = lot_status, default = 'produced')
+    status=models.CharField(max_length = 11, choices = lot_status, default = 'produced')
     productionTimestamp = models.DateTimeField(auto_now_add=True)
     departureTimestamp = models.DateTimeField()
 
